@@ -114,7 +114,73 @@ onlyPositive :: [Int] -> [Int]
 onlyPositive numbers = filter (> 0) numbers
 
 
--- main wordt uitgevoerd wanneer we het bestand starten.
+-- In Haskell zijn zowel then als else verplicht,
+-- omdat een if-expressie altijd een waarde moet opleveren.
+describeAge :: Int -> String
+describeAge age =
+    if age >= 18
+        then "Volwassen"
+        else "Minderjarig"
+
+-- Een naam kan aan een waarde worden gekoppeld.
+-- age is vanaf dit moment gekoppeld aan de waarde 20.
+age :: Int
+age = 20
+
+-- We kunnen de eerder gedefinieerde waarde age gebruiken
+-- om een nieuwe waarde te berekenen.
+nextAge :: Int
+nextAge = age + 1
+
+-- Een bestaande definitie kan niet opnieuw een andere waarde krijgen.
+-- Daarom mag de volgende regel niet als werkende code worden toegevoegd:
+-- age = 21
+
+
+-- Met let kunnen we tijdelijke waarden binnen een expressie definiëren.
+-- tax en total bestaan alleen binnen deze functieaanroep.
+-- De expressie na in bepaalt het resultaat van de functie.
+calculateTotalWithLet :: Double -> Double
+calculateTotalWithLet price =
+    let tax = price * 0.21
+        total = price + tax
+    in total
+
+-- Met where kunnen we hulpwaarden onder de hoofdberekening definiëren.
+-- tax kan in de berekening boven where worden gebruikt.
+-- Deze functie doet hetzelfde als calculateTotalWithLet.
+calculateTotalWithWhere :: Double -> Double
+calculateTotalWithWhere price = price + tax
+    where
+        tax = price * 0.21
+
+
+-- case gebruikt pattern matching om verschillende vormen
+-- van een waarde afzonderlijk te behandelen.
+describeResult :: Maybe Int -> String
+describeResult result =
+    case result of
+        Nothing -> "Geen getal gevonden"
+
+        -- Bij Just halen we het getal uit de Maybe-waarde.
+        -- show zet het getal om naar een String.
+        Just number -> "Getal gevonden: " ++ show number
+
+-- IO geeft aan dat deze functie invoer leest of uitvoer toont.
+-- De functie ontvangt geen gewone parameter en levert een IO-actie op.
+askForJson :: IO ()
+askForJson = do
+    putStrLn "Voer JSON in:"
+
+    -- getLine leest invoer uit de terminal.
+    -- Met <- wordt het resultaat daarvan gekoppeld aan input.
+    input <- getLine
+
+    -- De ingevoerde tekst wordt gecombineerd met een andere String
+    -- en vervolgens in de terminal getoond.
+    putStrLn ("Invoer: " ++ input)
+
+
 main :: IO ()
 main = do
     print (double 5)
@@ -132,3 +198,11 @@ main = do
     print (applyTwice double 3)
     print (doubleAll [1, 2, 3])
     print (onlyPositive [-2, 0, 3, 5])
+    print (describeAge 20)
+    print age
+    print nextAge
+    print (calculateTotalWithLet 100)
+    print (calculateTotalWithWhere 100)
+    print (describeResult Nothing)
+    print (describeResult (Just 42))
+    askForJson

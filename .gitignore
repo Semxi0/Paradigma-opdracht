@@ -3,5 +3,5 @@ dist-newstyle/
 *.o
 *.dyn_hi
 *.dyn_o
+*.exe
 .ghc.environment.*
-
