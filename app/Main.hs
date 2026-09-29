@@ -1,8 +1,5 @@
-module Main (main) where
-
-import qualified MyLib (someFunc)
+module Main where
 
 main :: IO ()
 main = do
-  putStrLn "Hello, Haskell!"
-  MyLib.someFunc
+    putStrLn "JSON-parser wordt gestart."

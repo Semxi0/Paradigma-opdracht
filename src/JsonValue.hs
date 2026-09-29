@@ -16,7 +16,7 @@ data JsonValue
     -- JSON-object bevat een lijst met sleutel-waardeparen
     -- De sleutel is een String en de waarde kan iedere JsonValue zijn
     | JsonObject [(String, JsonValue)]
-    -- JsonValue kan worden weergegeven als een String door Show en het kan vergeleken met andere JsonValue met Eq
+    -- JsonValue kan worden weergegeven als een String door Show en het kan vergelijkt worden met andere JsonValue met Eq
     deriving (Show, Eq)
 
 

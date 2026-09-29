@@ -6,4 +6,5 @@ Ik heb tot nu toe AI gebruikt om mijn informatie te fact-checken. Ik heb de bron
 **Tijdens het maken van Basis.hs**
 Ik heb AI gebruikt om comments te zetten bij elk stukje code om te oefenen en het beter te begrijpen. Dit is allemaal voor nu nog voorbereiding op de paradigma opdracht.
 
-
+**Algemeen**
+Ik heb gevraagd of je met Haskell net zoals Java in meerdere bestanden kan werken met bijvoorbeeld classes.

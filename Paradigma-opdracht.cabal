@@ -60,7 +60,7 @@ library
     import:           warnings
 
     -- Modules exported by the library.
-    exposed-modules:  JsonValue
+    exposed-modules:  JsonValue Parser
 
     -- Modules included in this library but not exported.
     -- other-modules:
