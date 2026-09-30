@@ -96,5 +96,48 @@ parseJsonString input =
 -- Zet de gevonden inhoud om naar JsonString en geef de rest terug
                 Right (content, finalInput) -> Right (JsonString content, finalInput)
 
+-- Haalt alle cijfers uit de invoer en geeft de rest terug
+parseDigits :: Parser String
+-- Stopconditie voor als invoer leeg is
+parseDigits [] = Right ("", "")
 
+-- Bewaar de volledige invoer als input en splits het op
+parseDigits input@(char : rest)
+    | char >= '0' && char <= '9' =
+        case parseDigits rest of
+            Right (parsedRest, finalInput) -> Right (char : parsedRest, finalInput)
 
+    | otherwise = Right ("", input)
+
+-- Parsed een getal naar JsonNumber
+parseNumber :: Parser JsonValue
+parseNumber input = 
+    -- Haalt getal als tekst en resterende invoer op
+    let (numberText, restInput) = readNumberText input
+    in
+        if numberText == "" || numberText == "-"
+            then Left "Invalid number."
+            -- Zet tekst om naar double, dan naar JsonNumber
+            else Right (JsonNumber (read numberText), restInput)
+
+-- Leest de tekst van een getal en geeft rest invoer terug
+readNumberText :: String -> (String, String)
+
+-- Als getal negatief, bewaar - en ga verder
+readNumberText ('-' : rest) =
+    let (digits, restInput) = readNumberText rest
+    in ('-' : digits, restInput)
+
+readNumberText input =
+    case parseDigits input of
+        Right (digits, restInput) ->
+            -- Kijk of er decimale cijfers zijn
+            case restInput of
+                ('.' : afterDot) ->
+                    case parseDigits afterDot of
+                        Right (decimalDigits, finalInput) ->
+                            if decimalDigits == ""
+                                then (digits, restInput) -- Geen decimale cijfers, dus geef alleen de cijfers terug (en rest)
+                                else (digits ++ "." ++ decimalDigits, finalInput)
+                -- Geen punt, dus geef cijfers en rest terug
+                _ -> (digits, restInput)
