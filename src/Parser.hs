@@ -48,7 +48,6 @@ parseString (expected : restExpected) input =
                 Right (actualRest, finalInput) ->
                     Right (parsedChar : actualRest, finalInput)
 
-
 parseNull :: Parser JsonValue
 parseNull input =
     case parseString "null" input of
@@ -56,7 +55,6 @@ parseNull input =
 
 -- Verander JSON null naar JsonNull en geef rest waarde terug
         Right (_, restInput) -> Right (JsonNull, restInput)
-
 
 parseBoolean :: Parser JsonValue
 parseBoolean input =
@@ -70,3 +68,33 @@ parseBoolean input =
                 -- Verander JSON false naar JsonBoolean False en geef rest waarde terug
                 Right (_, restInput) -> Right (JsonBoolean False, restInput)
                 Left errorMsg -> Left errorMsg
+
+-- Leest tekens totdat het een " raakt
+parseStringContent :: Parser String
+-- 1e stopconditie voor als invoer leeg is 
+parseStringContent [] = Left "String isn't closed with a quote."
+
+-- 2e stopconditie als het eerste teken een " is"
+parseStringContent ( '"' : rest) = Right ("", rest)
+
+-- Eerste teken wordt bewaard en de rest word recursief verwerkt
+parseStringContent (char : rest) =
+    case parseStringContent rest of
+        Left errorMsg -> Left errorMsg
+        Right (parsedRest, finalInput) -> Right (char : parsedRest, finalInput)
+
+-- parsed een JSON String naar JsonString
+parseJsonString :: Parser JsonValue
+parseJsonString input =
+    case parseChar '"' input of
+        Left errorMsg -> Left errorMsg
+
+        Right (_, restInput) ->
+            case parseStringContent restInput of
+                Left errorMsg -> Left errorMsg
+
+-- Zet de gevonden inhoud om naar JsonString en geef de rest terug
+                Right (content, finalInput) -> Right (JsonString content, finalInput)
+
+
+
