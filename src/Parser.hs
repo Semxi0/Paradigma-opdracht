@@ -105,6 +105,7 @@ parseDigits [] = Right ("", "")
 parseDigits input@(char : rest)
     | char >= '0' && char <= '9' =
         case parseDigits rest of
+            Left errorMsg -> Left errorMsg
             Right (parsedRest, finalInput) -> Right (char : parsedRest, finalInput)
 
     | otherwise = Right ("", input)
@@ -130,11 +131,13 @@ readNumberText ('-' : rest) =
 
 readNumberText input =
     case parseDigits input of
+        Left _ -> ("", input)
         Right (digits, restInput) ->
             -- Kijk of er decimale cijfers zijn
             case restInput of
                 ('.' : afterDot) ->
                     case parseDigits afterDot of
+                        Left _ -> (digits, restInput) 
                         Right (decimalDigits, finalInput) ->
                             if decimalDigits == ""
                                 then (digits, restInput) -- Geen decimale cijfers, dus geef alleen de cijfers terug (en rest)
@@ -151,4 +154,25 @@ skipWhitespace (char : rest)
     | char == ' ' || char == '\n' || char == '\t' = skipWhitespace rest
 
     | otherwise = char : rest
+
+-- Kiest welke JSON-parser gebruikt moet worden
+parseJsonValue :: Parser JsonValue
+parseJsonValue input =
+    -- Haalt whitespaces weg (bij begin)
+    let cleanInput = skipWhitespace input
+    in 
+        -- Probeert alle parsers
+        -- Negeer fout, want het kan voor een andere parser zijn
+        case parseNull cleanInput of
+            Right result -> Right result
+            Left _ ->
+                case parseBoolean cleanInput of
+                    Right result -> Right result
+                    Left _ ->
+                        case parseJsonString cleanInput of
+                            Right result -> Right result
+                            Left _ ->
+                                case parseNumber cleanInput of
+                                    Right result -> Right result
+                                    Left _ -> Left "Invalid JSON value."
 
