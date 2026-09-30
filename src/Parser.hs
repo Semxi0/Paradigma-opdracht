@@ -54,7 +54,19 @@ parseNull input =
     case parseString "null" input of
         Left errorMsg -> Left errorMsg
 
--- verander JSON null naar JsonNull en geef rest waarde terug
+-- Verander JSON null naar JsonNull en geef rest waarde terug
         Right (_, restInput) -> Right (JsonNull, restInput)
 
 
+parseBoolean :: Parser JsonValue
+parseBoolean input =
+    case parseString "true" input of
+        -- Verander JSON true naar JsonBoolean True en geef rest waarde terug
+        Right (_, restInput) -> Right (JsonBoolean True, restInput)
+
+-- Negeer fout voor nu en kijk of het misschien false is
+        Left _ ->
+            case parseString "false" input of
+                -- Verander JSON false naar JsonBoolean False en geef rest waarde terug
+                Right (_, restInput) -> Right (JsonBoolean False, restInput)
+                Left errorMsg -> Left errorMsg
