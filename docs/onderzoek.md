@@ -131,3 +131,6 @@ Een functie kan reageren op de vorm van een waarde.
 Bij een lijst kan bijvoorbeeld onderscheid worden gemaakt tussen een lege lijst en een lijst met een eerste element en een resterend gedeelte. Bij het JSON-datatype kan pattern matching onderscheid maken tussen een string, getal, boolean, array, object en nullwaarde.
 
 Pattern matching maakt de verschillende mogelijkheden duidelijk zichtbaar in de code.
+
+### Zelf notities
+cabal lijkt een beetje op maven met de commandos.

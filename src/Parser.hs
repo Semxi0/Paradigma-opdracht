@@ -1,10 +1,10 @@
 module Parser where
 
--- ParseResult is een mogelijke resultaat van een parser
+-- ParseResult is een mogelijk resultaat van een parser
 -- Left bevat een foutmelding en right bevat het gevonden resultaat en resterende invoer
 type ParseResult a = Either String (a, String)
 
--- Parser is een functie die een string als invoer krijgt en een ParseResult teruggeeft
+-- Parser is een functie die een String als invoer krijgt en een ParseResult teruggeeft
 type Parser a = String -> ParseResult a
 
 -- parseChar ontvangt het verwachte teken en geeft een parser terug
@@ -22,3 +22,27 @@ parseChar expected (actual : rest)
     | otherwise = 
         Left ("Verwacht teken '" ++ [expected] ++ "', maar vond '" ++ [actual] ++ "'.")
         
+-- parseString ontvangt een verwachte String en geeft een parser terug
+parseString :: String -> Parser String
+
+-- Dit is de stopconditie
+-- Als er geen verwachte tekens meer zijn, is de volledige verwachte String gevonden
+parseString [] input = Right ("", input)
+
+-- Pattern matching splitst verwachte String op
+parseString (expected : restExpected) input =
+    case parseChar expected input of
+        -- Als er iets niet klopt geef foutmelding van parseChar
+        Left errorMsg -> Left errorMsg
+
+-- Als het klopt gebruik gevonden teken en de rest
+        Right (parsedChar, restInput) ->
+            -- recursief aanroepen met overgebleven waardes
+            case parseString restExpected restInput of
+                Left errorMsg -> Left errorMsg
+
+-- Als alles klopt, bouw de gevonden String op
+-- en geef overgebleven String terug
+                Right (actualRest, finalInput) ->
+                    Right (parsedChar : actualRest, finalInput)
+

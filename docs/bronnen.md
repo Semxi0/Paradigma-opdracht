@@ -39,3 +39,8 @@ JSON-parser op GitHub:
 https://github.com/dhruvSHA256/json-parser
 
 Gebruikt tijdens de oriëntatie en voor het vinden van de bronnen. De implementatie is niet rechtstreeks overgenomen. Ik heb niet eens naar hun code gekeken, alleen maar naar de gebruikte bronnen.
+
+CABAL project opbouwen:
+https://www.youtube.com/watch?v=aYlHnrez8-I
+
+Gebruikt om te zien hoe ik moest beginnen met een haskell project.
