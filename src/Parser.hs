@@ -127,6 +127,57 @@ parseArrayValues input =
                     _ ->
                         Left "Expected ',' or ']' in array."
 
+-- parsed een key en value uit een JSON object
+parseObjectPair :: Parser (String, JsonValue)
+parseObjectPair input =
+    -- parsed de key als een JSON string
+    case parseJsonString (skipWhitespace input) of
+        Left errorMsg -> Left errorMsg
+
+        Right (JsonString key, restInput) ->
+            let cleanInput = skipWhitespace restInput
+            in
+                case cleanInput of
+                    -- na key moet : komen
+                    (':' : rest) ->
+                        case parseJsonValue (skipWhitespace rest) of
+                            Left errorMsg -> Left errorMsg
+
+                            -- moet een key en value teruggeven om de data in het object
+                            -- te kunnen opbouwen
+                            Right (value, finalInput) ->
+                                Right ((key, value), finalInput)
+                    _ ->
+                        Left "Expected ':' after object key."
+        Right _ ->
+            Left "Object key must be a string."
+
+-- parsed meerdere key-value paren binnen een JSON object
+parseObjectPairs :: Parser [(String, JsonValue)]
+parseObjectPairs input =
+    case parseObjectPair (skipWhitespace input) of
+        Left errorMsg -> Left errorMsg
+
+-- pair bevat hele teruggegeven waarde van parseObjectPair
+        Right (pair, restInput) ->
+            let cleanInput = skipWhitespace restInput
+            in
+                case cleanInput of
+                    -- einde van object
+                    ('}' : rest) ->
+                        Right ([pair], rest)
+
+                    -- er is meer in het object
+                    (',' : rest) ->
+                        case parseObjectPairs rest of
+                            Left errorMsg -> Left errorMsg
+                            -- data in object onder elkaar zetten 
+                            Right (pairs, finalInput) ->
+                                Right (pair : pairs, finalInput)
+
+                    _ ->
+                        Left "Expected ',' or '}' in object."
+
 -- parsed een JSON null naar JsonNull
 parseNull :: Parser JsonValue
 parseNull input =
@@ -195,6 +246,28 @@ parseArray input =
                             Right (values, finalInput) ->
                                 Right (JsonArray values, finalInput)
 
+-- parsed een JSON object
+parseObject :: Parser JsonValue
+parseObject input = 
+    case parseChar '{' input of
+        Left errorMsg -> Left errorMsg
+
+        Right (_, restInput) ->
+            let cleanInput = skipWhitespace restInput
+            in
+                case cleanInput of
+                    -- leeg object
+                    ('}' : rest) ->
+                        Right (JsonObject [], rest)
+
+                    -- object met een of meerdere key-values
+                    _ ->
+                        case parseObjectPairs cleanInput of
+                            Left errorMsg -> Left errorMsg
+
+                            Right (pairs, finalInput) ->
+                                Right (JsonObject pairs, finalInput)
+
 -- Haalt whitespaces weg aan begin
 skipWhitespace :: String -> String
 -- Stopconditie. Als invoer leeg, geef leeg terug
@@ -227,5 +300,8 @@ parseJsonValue input =
                                     Left _ ->
                                         case parseArray cleanInput of
                                             Right result -> Right result
-                                            Left _ -> Left "Invalid JSON value"
+                                            Left _ ->
+                                                case parseObject cleanInput of
+                                                    Right result -> Right result
+                                                    Left _ -> Left "Invalid JSON value"
 
