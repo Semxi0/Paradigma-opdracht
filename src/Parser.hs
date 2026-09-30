@@ -1,5 +1,7 @@
 module Parser where
 
+import JsonValue
+
 -- ParseResult is een mogelijk resultaat van een parser
 -- Left bevat een foutmelding en right bevat het gevonden resultaat en resterende invoer
 type ParseResult a = Either String (a, String)
@@ -45,4 +47,14 @@ parseString (expected : restExpected) input =
 -- en geef overgebleven String terug
                 Right (actualRest, finalInput) ->
                     Right (parsedChar : actualRest, finalInput)
+
+
+parseNull :: Parser JsonValue
+parseNull input =
+    case parseString "null" input of
+        Left errorMsg -> Left errorMsg
+
+-- verander JSON null naar JsonNull en geef rest waarde terug
+        Right (_, restInput) -> Right (JsonNull, restInput)
+
 
