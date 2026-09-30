@@ -141,3 +141,14 @@ readNumberText input =
                                 else (digits ++ "." ++ decimalDigits, finalInput)
                 -- Geen punt, dus geef cijfers en rest terug
                 _ -> (digits, restInput)
+
+-- Haalt whitespaces weg aan begin
+skipWhitespace :: String -> String
+-- Stopconditie. Als invoer leeg, geef leeg terug
+skipWhitespace [] = []
+-- Check of het een spatie, nieuwe regel of tab is
+skipWhitespace (char : rest)
+    | char == ' ' || char == '\n' || char == '\t' = skipWhitespace rest
+
+    | otherwise = char : rest
+
