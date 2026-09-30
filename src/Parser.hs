@@ -48,27 +48,6 @@ parseString (expected : restExpected) input =
                 Right (actualRest, finalInput) ->
                     Right (parsedChar : actualRest, finalInput)
 
-parseNull :: Parser JsonValue
-parseNull input =
-    case parseString "null" input of
-        Left errorMsg -> Left errorMsg
-
--- Verander JSON null naar JsonNull en geef rest waarde terug
-        Right (_, restInput) -> Right (JsonNull, restInput)
-
-parseBoolean :: Parser JsonValue
-parseBoolean input =
-    case parseString "true" input of
-        -- Verander JSON true naar JsonBoolean True en geef rest waarde terug
-        Right (_, restInput) -> Right (JsonBoolean True, restInput)
-
--- Negeer fout voor nu en kijk of het misschien false is
-        Left _ ->
-            case parseString "false" input of
-                -- Verander JSON false naar JsonBoolean False en geef rest waarde terug
-                Right (_, restInput) -> Right (JsonBoolean False, restInput)
-                Left errorMsg -> Left errorMsg
-
 -- Leest tekens totdat het een " raakt
 parseStringContent :: Parser String
 -- 1e stopconditie voor als invoer leeg is 
@@ -83,19 +62,6 @@ parseStringContent (char : rest) =
         Left errorMsg -> Left errorMsg
         Right (parsedRest, finalInput) -> Right (char : parsedRest, finalInput)
 
--- parsed een JSON String naar JsonString
-parseJsonString :: Parser JsonValue
-parseJsonString input =
-    case parseChar '"' input of
-        Left errorMsg -> Left errorMsg
-
-        Right (_, restInput) ->
-            case parseStringContent restInput of
-                Left errorMsg -> Left errorMsg
-
--- Zet de gevonden inhoud om naar JsonString en geef de rest terug
-                Right (content, finalInput) -> Right (JsonString content, finalInput)
-
 -- Haalt alle cijfers uit de invoer en geeft de rest terug
 parseDigits :: Parser String
 -- Stopconditie voor als invoer leeg is
@@ -109,17 +75,6 @@ parseDigits input@(char : rest)
             Right (parsedRest, finalInput) -> Right (char : parsedRest, finalInput)
 
     | otherwise = Right ("", input)
-
--- Parsed een getal naar JsonNumber
-parseNumber :: Parser JsonValue
-parseNumber input = 
-    -- Haalt getal als tekst en resterende invoer op
-    let (numberText, restInput) = readNumberText input
-    in
-        if numberText == "" || numberText == "-"
-            then Left "Invalid number."
-            -- Zet tekst om naar double, dan naar JsonNumber
-            else Right (JsonNumber (read numberText), restInput)
 
 -- Leest de tekst van een getal en geeft rest invoer terug
 readNumberText :: String -> (String, String)
@@ -144,6 +99,101 @@ readNumberText input =
                                 else (digits ++ "." ++ decimalDigits, finalInput)
                 -- Geen punt, dus geef cijfers en rest terug
                 _ -> (digits, restInput)
+
+-- parsed de waarden binnen een JSON array
+parseArrayValues :: Parser [JsonValue]
+parseArrayValues input =
+    -- parsed eerste waarde
+    case parseJsonValue (skipWhitespace input) of
+        Left errorMsg -> Left errorMsg
+
+        Right (value, restInput) ->
+            let cleanInput = skipWhitespace restInput
+            in
+                case cleanInput of
+                    -- einde van array gevonden
+                    (']' : rest) ->
+                        Right ([value], rest)
+
+                    -- er zijn meer waardes in de array
+                    (',' : rest) ->
+                        case parseArrayValues rest of
+                            Left errorMsg -> Left errorMsg
+
+                            Right (values, finalInput) ->
+                                Right (value : values, finalInput)
+
+                    -- bij ongeldige JSON array
+                    _ ->
+                        Left "Expected ',' or ']' in array."
+
+-- parsed een JSON null naar JsonNull
+parseNull :: Parser JsonValue
+parseNull input =
+    case parseString "null" input of
+        Left errorMsg -> Left errorMsg
+
+-- Verander JSON null naar JsonNull en geef rest waarde terug
+        Right (_, restInput) -> Right (JsonNull, restInput)
+
+-- parsed een JSON String naar JsonString
+parseJsonString :: Parser JsonValue
+parseJsonString input =
+    case parseChar '"' input of
+        Left errorMsg -> Left errorMsg
+
+        Right (_, restInput) ->
+            case parseStringContent restInput of
+                Left errorMsg -> Left errorMsg
+
+-- Zet de gevonden inhoud om naar JsonString en geef de rest terug
+                Right (content, finalInput) -> Right (JsonString content, finalInput)
+
+parseBoolean :: Parser JsonValue
+parseBoolean input =
+    case parseString "true" input of
+        -- Verander JSON true naar JsonBoolean True en geef rest waarde terug
+        Right (_, restInput) -> Right (JsonBoolean True, restInput)
+
+-- Negeer fout voor nu en kijk of het misschien false is
+        Left _ ->
+            case parseString "false" input of
+                -- Verander JSON false naar JsonBoolean False en geef rest waarde terug
+                Right (_, restInput) -> Right (JsonBoolean False, restInput)
+                Left errorMsg -> Left errorMsg
+
+-- Parsed een getal naar JsonNumber
+parseNumber :: Parser JsonValue
+parseNumber input = 
+    -- Haalt getal als tekst en resterende invoer op
+    let (numberText, restInput) = readNumberText input
+    in
+        if numberText == "" || numberText == "-"
+            then Left "Invalid number."
+            -- Zet tekst om naar double, dan naar JsonNumber
+            else Right (JsonNumber (read numberText), restInput)
+
+-- parsed een JSON array
+parseArray :: Parser JsonValue
+parseArray input =
+    case parseChar '[' input of
+        Left errorMsg -> Left errorMsg
+
+        Right (_, restInput) ->
+            let cleanInput = skipWhitespace restInput
+            in
+                case cleanInput of
+                    -- lege array
+                    (']' : rest) ->
+                        Right (JsonArray [], rest)
+                    
+                    -- array met een of meerdere waarden
+                    _ ->
+                        case parseArrayValues cleanInput of
+                            Left errorMsg -> Left errorMsg
+
+                            Right (values, finalInput) ->
+                                Right (JsonArray values, finalInput)
 
 -- Haalt whitespaces weg aan begin
 skipWhitespace :: String -> String
@@ -174,5 +224,8 @@ parseJsonValue input =
                             Left _ ->
                                 case parseNumber cleanInput of
                                     Right result -> Right result
-                                    Left _ -> Left "Invalid JSON value."
+                                    Left _ ->
+                                        case parseArray cleanInput of
+                                            Right result -> Right result
+                                            Left _ -> Left "Invalid JSON value"
 
