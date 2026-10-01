@@ -49,3 +49,5 @@ Mijn implementatie is een vereenvoudigde JSON-parser en ondersteunt niet alle on
 Zo worden getallen met exponentnotatie, zoals `1e3`, niet ondersteund. Ook worden niet alle escape-tekens in strings correct verwerkt. Daarnaast worden sommige ongeldige getalnotaties, zoals `01`, nog geaccepteerd.
 
 De parser is daarom bedoeld als een oefening in functioneel programmeren en niet als een volledige implementatie van de JSON-standaard.
+
+De parser geeft bij ongeldige JSON een foutmelding terug, maar deze foutmelding geeft niet altijd specifiek aan waar de fout zit.
