@@ -53,8 +53,16 @@ parseStringContent :: Parser String
 -- 1e stopconditie voor als invoer leeg is 
 parseStringContent [] = Left "String isn't closed with a quote."
 
+-- herkent een (\")
+parseStringContent ( '\\' : '"' : rest) =
+    case parseStringContent rest of
+        Left errorMsg -> Left errorMsg
+        Right (parsedRest, finalInput) ->
+            Right ('"' : parsedRest, finalInput)
+
 -- 2e stopconditie als het eerste teken een " is"
-parseStringContent ( '"' : rest) = Right ("", rest)
+parseStringContent ('"' : rest) =
+    Right ("", rest)
 
 -- Eerste teken wordt bewaard en de rest word recursief verwerkt
 parseStringContent (char : rest) =
@@ -94,7 +102,7 @@ readNumberText input =
                     case parseDigits afterDot of
                         Left _ -> (digits, restInput) 
                         Right (decimalDigits, finalInput) ->
-                            if decimalDigits == ""
+                            if digits == "" || decimalDigits == ""
                                 then (digits, restInput) -- Geen decimale cijfers, dus geef alleen de cijfers terug (en rest)
                                 else (digits ++ "." ++ decimalDigits, finalInput)
                 -- Geen punt, dus geef cijfers en rest terug
@@ -305,3 +313,13 @@ parseJsonValue input =
                                                     Right result -> Right result
                                                     Left _ -> Left "Invalid JSON value"
 
+-- kijkt of er nog overgebleven ongeldige code over is na alles parsen
+parseJson :: String -> Either String JsonValue
+parseJson input =
+    case parseJsonValue input of
+        Left errorMsg -> Left errorMsg
+
+        Right (value, restInput) ->
+            if skipWhitespace restInput == ""
+                then Right value
+                else Left "Unexpected characters after JSON value."

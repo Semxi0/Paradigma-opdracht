@@ -1,5 +1,9 @@
 module Main where
 
+import Parser
+
 main :: IO ()
 main = do
-    putStrLn "JSON-parser wordt gestart."
+    putStrLn "Voer JSON in:"
+    input <- getLine
+    print (parseJson input)
