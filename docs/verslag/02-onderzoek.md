@@ -103,7 +103,7 @@ Lazy evaluation kan voorkomen dat onnodige berekeningen worden uitgevoerd. Het m
 
 ## Pattern matching
 
-Pattern matching betekent dat een functie verschillende vormen van invoer kan herkennen en daar verschillend op kan reageren. In Haskell wordt dit bijvoorbeeld gebruikt om onderscheid te maken tussen een lege lijst en een lijst met elementen.
+Pattern matching betekent dat een functie verschillende vormen van invoer kan herkennen en daar verschillend op kan reageren. Hierbij kunnen ook direct onderdelen uit de invoer worden gehaald, zoals het eerste element van een lijst. In Haskell wordt dit bijvoorbeeld gebruikt om onderscheid te maken tussen een lege lijst en een lijst met elementen.
 
 Een voorbeeld in Haskell is:
 
