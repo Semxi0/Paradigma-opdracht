@@ -1,0 +1,46 @@
+# Bronnen
+
+Voor haskell:
+https://www.haskell.org/
+
+Gebruikt voor algemene informatie over haskell.
+
+"A gentle introduction to haskell":
+https://www.haskell.org/tutorial/
+
+Gebruikt voor informatie over functies, types, pattern matching en andere eigenschappen van haskell.
+
+"Parser combinators: a walkthrough":
+
+https://hasura.io/blog/parser-combinators-walkthrough
+
+Gebruikt voor informatie over parsers, parser-combinators en de verwerking van JSON met kleinere parserfuncties.
+
+Parser combinators in haskell:
+
+https://serokell.io/blog/parser-combinators-in-haskell
+
+Gebruikt voor informatie over het opbouwen en combineren van parsers in haskell.
+
+JSON parsing from scratch in haskell:
+
+https://abhinavsarkar.net/posts/json-parsing-from-scratch-in-haskell/#cb49-1
+
+Gebruikt als achtergrondinformatie over de onderdelen van een JSON-parser.
+
+GHCup Installation:
+
+https://www.haskell.org/ghcup/install/
+
+Gebruikt voor het installeren van GHCup, GHC, Cabal en de Haskell Language Server.
+
+JSON-parser op GitHub:
+
+https://github.com/dhruvSHA256/json-parser
+
+Gebruikt tijdens de oriëntatie en voor het vinden van aanvullende bronnen. De broncode van deze parser is niet bekeken of overgenomen.
+
+CABAL project opbouwen:
+https://www.youtube.com/watch?v=aYlHnrez8-I
+
+Gebruikt om te zien hoe ik moest beginnen met een haskell project.
